@@ -1,0 +1,424 @@
+---
+// VideoPlayer.astro
+---
+
+<!-- Video Player Modal -->
+<div 
+  id="video-player-modal" 
+  class="fixed inset-0 z-50 hidden items-center justify-center bg-black/95 backdrop-blur-xl opacity-0 transition-all duration-500"
+  onclick="closeVideoPlayer()"
+>
+  <!-- Modal Content -->
+  <div 
+    class="player-content relative w-full max-w-7xl mx-4 scale-95 opacity-0 transition-all duration-500"
+    onclick="event.stopPropagation()"
+  >
+    <!-- Close Button -->
+    <button 
+      onclick="closeVideoPlayer()" 
+      class="absolute -top-12 right-0 z-10 w-12 h-12 bg-white/10 hover:bg-white/20 backdrop-blur-sm rounded-full flex items-center justify-center text-white/80 hover:text-white transition-all duration-300 border border-white/20 hover:border-white/40 hover:scale-110 active:scale-95 group"
+      aria-label="Cerrar reproductor"
+    >
+      <svg class="w-6 h-6 transition-transform group-hover:rotate-90" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+        <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/>
+      </svg>
+    </button>
+
+    <!-- Video Container -->
+    <div class="relative aspect-video bg-black rounded-2xl overflow-hidden shadow-2xl border border-white/10">
+      <!-- Loading Spinner -->
+      <div id="video-loading" class="absolute inset-0 flex items-center justify-center bg-black/50 backdrop-blur-sm">
+        <div class="flex items-center space-x-3">
+          <div class="animate-spin rounded-full h-8 w-8 border-2 border-white/20 border-t-white"></div>
+          <span class="text-white/80 font-medium">Cargando...</span>
+        </div>
+      </div>
+
+      <!-- Video Element -->
+      <video
+        id="video-player-element"
+        class="w-full h-full bg-black"
+        controls
+        preload="metadata"
+        onloadstart="showLoading()"
+        oncanplay="hideLoading()"
+        onerror="handleVideoError()"
+        onended="handleVideoEnd()"
+      >
+        Tu navegador no soporta la reproducción de videos.
+      </video>
+
+      <!-- Video Overlay Controls (Custom) -->
+      <div id="video-overlay" class="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-black/40 opacity-0 hover:opacity-100 transition-opacity duration-300 pointer-events-none">
+        <!-- Title Overlay -->
+        <div class="absolute top-6 left-6 right-16">
+          <h2 id="video-player-title" class="text-2xl md:text-3xl font-bold text-white drop-shadow-2xl leading-tight"></h2>
+        </div>
+
+        <!-- Bottom Controls Info -->
+        <div class="absolute bottom-6 left-6 right-6 flex items-end justify-between">
+          <div class="flex items-center space-x-4">
+            <!-- Quality Badge -->
+            <span class="px-3 py-1 bg-white/20 backdrop-blur-sm rounded-full text-xs font-semibold text-white border border-white/30">
+              HD
+            </span>
+            <!-- Live Indicator (if needed) -->
+            <div class="flex items-center space-x-2">
+              <div class="w-2 h-2 bg-red-500 rounded-full animate-pulse"></div>
+              <span class="text-white/80 text-sm font-medium">En vivo</span>
+            </div>
+          </div>
+
+          <!-- Action Buttons -->
+          <div class="flex items-center space-x-3">
+            <!-- Volume Toggle -->
+            <button 
+              id="volume-toggle"
+              onclick="toggleVolume()"
+              class="w-10 h-10 bg-white/20 hover:bg-white/30 backdrop-blur-sm rounded-full flex items-center justify-center text-white transition-all duration-300 border border-white/30 hover:scale-110 pointer-events-auto"
+              aria-label="Alternar volumen"
+            >
+              <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
+                <path d="M3 9v6h4l5 5V4L7 9H3zm13.5 3c0-1.77-1.02-3.29-2.5-4.03v8.05c1.48-.73 2.5-2.25 2.5-4.02zM14 3.23v2.06c2.89.86 5 3.54 5 6.71s-2.11 5.85-5 6.71v2.06c4.01-.91 7-4.49 7-8.77s-2.99-7.86-7-8.77z"/>
+              </svg>
+            </button>
+
+            <!-- Fullscreen Toggle -->
+            <button 
+              onclick="toggleFullscreen()"
+              class="w-10 h-10 bg-white/20 hover:bg-white/30 backdrop-blur-sm rounded-full flex items-center justify-center text-white transition-all duration-300 border border-white/30 hover:scale-110 pointer-events-auto"
+              aria-label="Pantalla completa"
+            >
+              <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M4 7V4a1 1 0 011-1h3M4 17v3a1 1 0 001 1h3m10-20h3a1 1 0 011 1v3m0 10v3a1 1 0 01-1 1h-3"/>
+              </svg>
+            </button>
+
+            <!-- Favorite/Like Button -->
+            <button 
+              id="favorite-btn"
+              onclick="toggleFavorite()"
+              class="w-10 h-10 bg-white/20 hover:bg-white/30 backdrop-blur-sm rounded-full flex items-center justify-center text-white hover:text-red-400 transition-all duration-300 border border-white/30 hover:scale-110 pointer-events-auto"
+              aria-label="Agregar a favoritos"
+            >
+              <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M21 8.25c0-2.485-2.099-4.5-4.688-4.5-1.935 0-3.597 1.126-4.312 2.733-.715-1.607-2.377-2.733-4.313-2.733C5.1 3.75 3 5.765 3 8.25c0 7.22 9 12 9 12s9-4.78 9-12z"/>
+              </svg>
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Error State -->
+      <div id="video-error" class="absolute inset-0 hidden flex-col items-center justify-center bg-black/80 backdrop-blur-sm">
+        <div class="text-center space-y-4">
+          <div class="w-16 h-16 bg-red-500/20 rounded-full flex items-center justify-center mx-auto mb-4 border border-red-500/30">
+            <svg class="w-8 h-8 text-red-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/>
+            </svg>
+          </div>
+          <h3 class="text-white text-xl font-semibold">Error al cargar el video</h3>
+          <p class="text-white/60">No se pudo reproducir el contenido. Verifica tu conexión.</p>
+          <button 
+            onclick="retryVideo()"
+            class="mt-4 px-6 py-2 bg-white/20 hover:bg-white/30 backdrop-blur-sm rounded-full text-white font-medium transition-all duration-300 border border-white/30 hover:scale-105"
+          >
+            Reintentar
+          </button>
+        </div>
+      </div>
+
+      <!-- Video End Overlay -->
+      <div id="video-end-overlay" class="absolute inset-0 hidden flex-col items-center justify-center bg-black/80 backdrop-blur-sm">
+        <div class="text-center space-y-6 max-w-md">
+          <div class="w-20 h-20 bg-green-500/20 rounded-full flex items-center justify-center mx-auto border border-green-500/30">
+            <svg class="w-10 h-10 text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+            </svg>
+          </div>
+          <h3 class="text-white text-2xl font-bold">¡Video completado!</h3>
+          <p class="text-white/70">¿Te gustó este contenido?</p>
+          
+          <div class="flex items-center justify-center space-x-4">
+            <button 
+              onclick="replayVideo()"
+              class="flex items-center gap-2 px-6 py-3 bg-white/20 hover:bg-white/30 backdrop-blur-sm rounded-full text-white font-medium transition-all duration-300 border border-white/30 hover:scale-105"
+            >
+              <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M16.023 9.348h4.992v-.001M2.985 19.644v-4.992m0 0h4.992m-4.993 0l3.181 3.183a8.25 8.25 0 0013.803-3.7M4.031 9.865a8.25 8.25 0 0113.803-3.7l3.181 3.182m0-4.991v4.99"/>
+              </svg>
+              Ver de nuevo
+            </button>
+            
+            <button 
+              onclick="closeVideoPlayer()"
+              class="flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-purple-500/20 to-pink-500/20 hover:from-purple-500/30 hover:to-pink-500/30 backdrop-blur-sm rounded-full text-white font-medium transition-all duration-300 border border-purple-400/30 hover:scale-105"
+            >
+              <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M9 15L3 9m0 0l6-6M3 9h12a6 6 0 010 12h-3"/>
+              </svg>
+              Volver al inicio
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Video Information Panel (Optional) -->
+    <div class="mt-6 bg-white/5 backdrop-blur-sm rounded-xl p-6 border border-white/10">
+      <div class="flex items-start justify-between">
+        <div class="space-y-2">
+          <h3 id="video-info-title" class="text-xl font-semibold text-white"></h3>
+          <p id="video-info-description" class="text-white/70 text-sm leading-relaxed"></p>
+          
+          <div class="flex items-center space-x-6 mt-4 text-white/60 text-sm">
+            <div class="flex items-center space-x-2">
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.5">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M2.036 12.322a1.012 1.012 0 010-.639C3.423 7.51 7.36 4.5 12 4.5c4.638 0 8.573 3.007 9.963 7.178.07.207.07.431 0 .639C20.577 16.49 16.64 19.5 12 19.5c-4.638 0-8.573-3.007-9.963-7.178z"/>
+                <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
+              </svg>
+              <span>1.2M visualizaciones</span>
+            </div>
+            <div class="flex items-center space-x-2">
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.5">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M6.75 3v2.25M17.25 3v2.25M3 18.75V7.5a2.25 2.25 0 012.25-2.25h13.5A2.25 2.25 0 0121 7.5v11.25m-18 0A2.25 2.25 0 005.25 21h13.5a2.25 2.25 0 002.25-2.25m-18 0v-7.5A2.25 2.25 0 005.25 9h13.5a2.25 2.25 0 012.25 2.25v7.5"/>
+              </svg>
+              <span>Agregado hace 2 días</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Share Button -->
+        <button class="flex items-center gap-2 px-4 py-2 bg-white/10 hover:bg-white/20 backdrop-blur-sm rounded-lg text-white/80 hover:text-white transition-all duration-300 border border-white/20 hover:border-white/40">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.5">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M7.217 10.907a2.25 2.25 0 100 2.186m0-2.186c.18.324.283.696.283 1.093s-.103.77-.283 1.093m0-2.186l9.566-5.314m-9.566 7.5l9.566 5.314m0 0a2.25 2.25 0 103.935 2.186 2.25 2.25 0 00-3.935-2.186zm0-12.814a2.25 2.25 0 103.935-2.186 2.25 2.25 0 00-3.935 2.186z"/>
+          </svg>
+          <span class="text-sm font-medium">Compartir</span>
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<style>
+  /* Video player specific styles */
+  #video-player-element::-webkit-media-controls-panel {
+    background: linear-gradient(transparent, rgba(0,0,0,0.8));
+  }
+
+  #video-player-element::-webkit-media-controls-play-button,
+  #video-player-element::-webkit-media-controls-volume-slider,
+  #video-player-element::-webkit-media-controls-timeline {
+    filter: brightness(0) invert(1);
+  }
+
+  /* Custom loading animation */
+  @keyframes pulse-ring {
+    0% {
+      transform: scale(0.33);
+    }
+    40%,
+    50% {
+      opacity: 1;
+    }
+    100% {
+      opacity: 0;
+      transform: scale(1.2);
+    }
+  }
+
+  .pulse-ring {
+    animation: pulse-ring 1.25s cubic-bezier(0.215, 0.61, 0.355, 1) infinite;
+  }
+
+  /* Fullscreen styles */
+  #video-player-modal:fullscreen {
+    background: black;
+  }
+
+  #video-player-modal:fullscreen .player-content {
+    max-width: 100%;
+    height: 100vh;
+    margin: 0;
+  }
+
+  #video-player-modal:fullscreen .aspect-video {
+    height: 100vh;
+    border-radius: 0;
+  }
+</style>
+
+<script>
+  // Video Player JavaScript Functions
+  let currentVideoId = '';
+  let isMuted = false;
+  let isFavorite = false;
+
+  function showLoading() {
+    const loading = document.getElementById('video-loading');
+    if (loading) loading.style.display = 'flex';
+  }
+
+  function hideLoading() {
+    const loading = document.getElementById('video-loading');
+    if (loading) loading.style.display = 'none';
+  }
+
+  function handleVideoError() {
+    hideLoading();
+    const errorDiv = document.getElementById('video-error');
+    if (errorDiv) {
+      errorDiv.classList.remove('hidden');
+      errorDiv.classList.add('flex');
+    }
+  }
+
+  function handleVideoEnd() {
+    const endOverlay = document.getElementById('video-end-overlay');
+    if (endOverlay) {
+      endOverlay.classList.remove('hidden');
+      endOverlay.classList.add('flex');
+    }
+  }
+
+  function retryVideo() {
+    const videoElement = document.getElementById('video-player-element') as HTMLVideoElement;
+    const errorDiv = document.getElementById('video-error');
+    
+    if (videoElement && errorDiv) {
+      errorDiv.classList.add('hidden');
+      errorDiv.classList.remove('flex');
+      videoElement.load();
+      videoElement.play();
+    }
+  }
+
+  function replayVideo() {
+    const videoElement = document.getElementById('video-player-element') as HTMLVideoElement;
+    const endOverlay = document.getElementById('video-end-overlay');
+    
+    if (videoElement && endOverlay) {
+      endOverlay.classList.add('hidden');
+      endOverlay.classList.remove('flex');
+      videoElement.currentTime = 0;
+      videoElement.play();
+    }
+  }
+
+  function toggleVolume() {
+    const videoElement = document.getElementById('video-player-element') as HTMLVideoElement;
+    const volumeBtn = document.getElementById('volume-toggle');
+    
+    if (videoElement && volumeBtn) {
+      isMuted = !isMuted;
+      videoElement.muted = isMuted;
+      
+      // Update icon
+      const icon = volumeBtn.querySelector('svg');
+      if (icon) {
+        if (isMuted) {
+          icon.innerHTML = '<path d="M3.5 6.5h.982L7 8.5V15.5L4.482 17.5H3.5A.5.5 0 013 17V7a.5.5 0 01.5-.5zM10 8a.5.5 0 01.5.5v7a.5.5 0 01-.5.5H9.5a.5.5 0 01-.354-.146L7 13.707V10.293l2.146-2.147A.5.5 0 019.5 8H10zM11.854 8.146a.5.5 0 010 .708L10 10.707l1.854 1.853a.5.5 0 11-.708.708L9.293 11.414l-1.853 1.853a.5.5 0 11-.708-.708L8.586 10.707 6.732 8.854a.5.5 0 11.708-.708L9.293 10l1.853-1.854a.5.5 0 01.708 0z"/>';
+        } else {
+          icon.innerHTML = '<path d="M3 9v6h4l5 5V4L7 9H3zm13.5 3c0-1.77-1.02-3.29-2.5-4.03v8.05c1.48-.73 2.5-2.25 2.5-4.02zM14 3.23v2.06c2.89.86 5 3.54 5 6.71s-2.11 5.85-5 6.71v2.06c4.01-.91 7-4.49 7-8.77s-2.99-7.86-7-8.77z"/>';
+        }
+      }
+    }
+  }
+
+  function toggleFullscreen() {
+    const modal = document.getElementById('video-player-modal');
+    
+    if (modal) {
+      if (!document.fullscreenElement) {
+        modal.requestFullscreen().catch(err => {
+          console.log(`Error attempting to enable fullscreen: ${err.message}`);
+        });
+      } else {
+        document.exitFullscreen();
+      }
+    }
+  }
+
+  function toggleFavorite() {
+    const favoriteBtn = document.getElementById('favorite-btn');
+    
+    if (favoriteBtn) {
+      isFavorite = !isFavorite;
+      const icon = favoriteBtn.querySelector('svg');
+      
+      if (icon) {
+        if (isFavorite) {
+          icon.setAttribute('fill', 'currentColor');
+          favoriteBtn.classList.add('text-red-400');
+        } else {
+          icon.setAttribute('fill', 'none');
+          favoriteBtn.classList.remove('text-red-400');
+        }
+      }
+      
+      // Here you could make an API call to save/remove favorite
+      console.log(`Video ${currentVideoId} ${isFavorite ? 'added to' : 'removed from'} favorites`);
+    }
+  }
+
+  // Initialize video player when modal opens
+  function initVideoPlayer(videoId: string, title: string, description: string = '') {
+    currentVideoId = videoId;
+    
+    // Update info panel
+    const infoTitle = document.getElementById('video-info-title');
+    const infoDescription = document.getElementById('video-info-description');
+    
+    if (infoTitle) infoTitle.textContent = title;
+    if (infoDescription) infoDescription.textContent = description || 'Disfruta de este increíble contenido en la mejor calidad.';
+    
+    // Reset states
+    isMuted = false;
+    isFavorite = false;
+    
+    // Hide error and end overlays
+    const errorDiv = document.getElementById('video-error');
+    const endOverlay = document.getElementById('video-end-overlay');
+    
+    if (errorDiv) {
+      errorDiv.classList.add('hidden');
+      errorDiv.classList.remove('flex');
+    }
+    
+    if (endOverlay) {
+      endOverlay.classList.add('hidden');
+      endOverlay.classList.remove('flex');
+    }
+  }
+
+  // Add keyboard shortcuts
+  document.addEventListener('keydown', function(e) {
+    const modal = document.getElementById('video-player-modal');
+    const videoElement = document.getElementById('video-player-element') as HTMLVideoElement;
+    
+    if (modal && !modal.classList.contains('hidden') && videoElement) {
+      switch(e.code) {
+        case 'Space':
+          e.preventDefault();
+          if (videoElement.paused) {
+            videoElement.play();
+          } else {
+            videoElement.pause();
+          }
+          break;
+        case 'KeyM':
+          e.preventDefault();
+          toggleVolume();
+          break;
+        case 'KeyF':
+          e.preventDefault();
+          toggleFullscreen();
+          break;
+        case 'KeyR':
+          e.preventDefault();
+          replayVideo();
+          break;
+      }
+    }
+  });
+</script>

@@ -1,0 +1,69 @@
+---
+export const prerender = false;
+import Layout from '../layouts/Layout.astro';
+import VideoCard from '../components/VideoCard.astro';
+import { createSupabaseServerClient } from '../lib/supabaseServer';
+
+const supabase = createSupabaseServerClient(Astro.cookies);
+
+const { data: { user }, error: userError } = await supabase.auth.getUser();
+
+if (userError || !user) {
+  return Astro.redirect('/login');
+}
+
+// Get user profile data
+const { data: profile } = await supabase
+  .from('profiles')
+  .select('username, avatar_url')
+  .eq('id', user.id)
+  .single();
+
+  // Provide fallback for profile data
+const profileData = profile || { username: user.email?.split('@')[0] || 'Usuario', avatar_url: null };
+
+const { data: favorites, error: favoritesError } = await supabase
+  .from('favorites')
+  .select(`
+    video_id,
+    videos (id, title, description, thumbnail, video_url, duration, views, created_at)
+  `)
+  .eq('user_id', user.id)
+  .order('created_at', { ascending: false });
+
+const favoriteVideos = (favorites?.map(fav => fav.videos).filter(Boolean) as any[] || []).map(video => ({
+  ...video,
+  thumbnail_url: video.thumbnail // Map thumbnail to thumbnail_url for compatibility
+}));
+
+---
+<Layout title="VideoHub - Favoritos" user={user} profile={profile}>
+  <div class="min-h-screen bg-black text-white">
+    <!-- Content -->
+    <main class="py-12">
+      <div class="w-[98%] mx-auto px-6">
+        <div class="mb-8">
+          <h1 class="text-3xl font-bold text-white mb-2">Mis Favoritos</h1>
+          <p class="text-gray-400">Tus videos favoritos guardados</p>
+        </div>
+
+        {favoriteVideos.length > 0 ? (
+          <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+            {favoriteVideos.map((video) => (
+              <VideoCard video={video} />
+            ))}
+          </div>
+        ) : (
+          <div class="text-center py-16">
+            <i class="fas fa-heart text-gray-600 text-6xl mb-6"></i>
+            <h2 class="text-2xl font-bold text-gray-400 mb-4">No tienes favoritos aún</h2>
+            <p class="text-gray-500 mb-8">Agrega videos a tus favoritos para verlos aquí</p>
+            <a href="/" class="bg-red-600 hover:bg-red-700 text-white px-6 py-3 rounded-lg font-medium transition-colors">
+              Explorar Videos
+            </a>
+          </div>
+        )}
+      </div>
+    </main>
+  </div>
+</Layout>

@@ -1,0 +1,4 @@
+- [x] Update src/pages/trending.astro: change container class to w-[98%] mx-auto px-6
+- [x] Update src/pages/favorites.astro: change container class to w-[98%] mx-auto px-6
+- [x] Update src/pages/dashboard.astro: change container to w-[98%] mx-auto px-6 py-8 and remove inner max-w-4xl
+- [ ] Update src/pages/index.astro: change all container classes to w-[98%] mx-auto px-6

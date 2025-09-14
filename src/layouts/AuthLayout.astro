@@ -1,0 +1,19 @@
+---
+import Layout from './Layout.astro';
+import { supabase } from '../lib/supabaseClient';
+
+export interface Props {
+  title?: string;
+}
+
+const { title } = Astro.props;
+
+const { data: { session }, error } = await supabase.auth.getSession();
+
+if (!session) {
+  return Astro.redirect('/login');
+}
+---
+<Layout title={title} showHeader={false}>
+  <slot />
+</Layout>

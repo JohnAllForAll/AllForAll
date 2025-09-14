@@ -1,0 +1,1073 @@
+---
+export interface Props {
+  user?: {
+    id: string;
+    email?: string;
+  } | null;
+  profile?: {
+    username: string;
+    avatar_url?: string | null;
+  } | null;
+}
+
+const { user, profile } = Astro.props;
+---
+
+<header class="fixed top-0 left-0 right-0 z-50 transition-all duration-500" id="main-header">
+  <div class="w-[98%] mx-auto px-6 py-4">
+    <div class="flex items-center justify-between">
+      <!-- Logo -->
+      <div class="flex items-center">
+        <a href="/" class="text-2xl md:text-3xl font-black text-white tracking-wider hover:text-gray-200 transition-colors duration-300 cursor-pointer">
+          HBU
+        </a>
+      </div>
+
+      <!-- Desktop Navigation -->
+      <nav class="hidden md:flex items-center space-x-8">
+        <a href="/" class="text-white hover:text-gray-300 transition-colors duration-300 font-medium px-4 py-2 rounded-lg hover:bg-white/10 cursor-pointer">
+          <svg class="w-4 h-4 inline mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"></path>
+          </svg>
+          Home
+        </a>
+        <a href="/trending" class="text-white/80 hover:text-white transition-colors duration-300 font-medium px-4 py-2 rounded-lg hover:bg-white/10 cursor-pointer">
+          <svg class="w-4 h-4 inline mr-2" fill="currentColor" viewBox="0 0 20 20">
+            <path fill-rule="evenodd" d="M12.395 2.553a1 1 0 00-1.45-.385c-.345.23-.614.558-.822.88-.214.33-.403.713-.57 1.116-.334.804-.614 1.768-.84 2.734a31.365 31.365 0 00-.613 3.58 2.64 2.64 0 01-.945-1.067c-.328-.68-.398-1.534-.398-2.654A1 1 0 005.05 6.05 6.981 6.981 0 003 11a7 7 0 1011.95-4.95c-.592-.591-.98-.985-1.348-1.467-.363-.476-.724-1.063-1.207-2.03zM12.12 15.12A3 3 0 017 13s.879.5 2.5.5c0-1 .5-4 1.25-4.5.5 1 .786 1.293 1.371 1.879A2.99 2.99 0 0113 13a2.99 2.99 0 01-.879 2.121z" clip-rule="evenodd"></path>
+          </svg>
+          Tendencias
+        </a>
+        {user && (
+          <a href="/favorites" class="text-white/80 hover:text-white transition-colors duration-300 font-medium px-4 py-2 rounded-lg hover:bg-white/10 cursor-pointer">
+            <svg class="w-4 h-4 inline mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"></path>
+            </svg>
+            Mis Favoritos
+          </a>
+        )}
+        <a href="/browse" class="text-white/80 hover:text-white transition-colors duration-300 font-medium px-4 py-2 rounded-lg hover:bg-white/10 cursor-pointer">
+          <svg class="w-4 h-4 inline mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14-4H5m14 8H5m14-12H5"></path>
+          </svg>
+          Explore
+        </a>
+      </nav>
+
+      <!-- Right Side Actions -->
+      <div class="flex items-center space-x-4">
+        <!-- Search Button -->
+        <button class="text-white hover:text-gray-300 transition-colors duration-300 p-2 rounded-full hover:bg-white/10" id="search-btn" title="Buscar">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+          </svg>
+        </button>
+
+        {user && (
+          <div class="flex items-center space-x-4">
+            <!-- Upload Button -->
+            <a href="/upload" class="hidden sm:inline-flex items-center px-4 py-2 bg-white/10 hover:bg-white/20 backdrop-blur-sm text-white font-medium rounded-lg transition-all duration-300 border border-white/20">
+              <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
+              </svg>
+              Subir
+            </a>
+
+            <!-- User Menu -->
+            <div class="relative" id="user-menu-container">
+              <button class="flex items-center space-x-3 text-white hover:text-gray-300 transition-colors duration-300 p-2 rounded-lg hover:bg-white/10" id="user-menu-button" type="button">
+                {profile?.avatar_url ? (
+                  <img
+                    src={profile.avatar_url}
+                    alt="Avatar"
+                    class="w-8 h-8 rounded-full object-cover shadow-lg"
+                  />
+                ) : (
+                  <div class="w-8 h-8 bg-gradient-to-br from-purple-500 via-pink-500 to-red-500 rounded-full flex items-center justify-center shadow-lg">
+                    <span class="text-sm font-bold text-white">{profile?.username?.charAt(0).toUpperCase() || user?.email?.split('@')[0].charAt(0).toUpperCase()}</span>
+                  </div>
+                )}
+                <div class="hidden sm:block text-left">
+                  <p class="text-sm font-medium">{profile?.username || user?.email?.split('@')[0]}</p>
+                  <p class="text-xs text-gray-400">Premium</p>
+                </div>
+                <svg class="w-4 h-4 text-gray-400 transition-transform duration-200" fill="none" stroke="currentColor" viewBox="0 0 24 24" id="dropdown-arrow">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+                </svg>
+              </button>
+
+              <!-- Dropdown Menu -->
+              <div class="absolute right-0 mt-2 w-64 bg-black/95 backdrop-blur-xl border border-white/20 rounded-2xl shadow-2xl opacity-0 invisible transition-all duration-300 transform translate-y-2 scale-95" id="user-dropdown">
+                <div class="p-4 border-b border-white/10">
+                  <div class="flex items-center space-x-3">
+                    {profile?.avatar_url ? (
+                      <img
+                        src={profile.avatar_url}
+                        alt="Avatar"
+                        class="w-10 h-10 rounded-full object-cover"
+                      />
+                    ) : (
+                      <div class="w-10 h-10 bg-gradient-to-br from-purple-500 via-pink-500 to-red-500 rounded-full flex items-center justify-center">
+                        <span class="text-sm font-bold text-white">{profile?.username?.charAt(0).toUpperCase() || user?.email?.split('@')[0].charAt(0).toUpperCase()}</span>
+                      </div>
+                    )}
+                    <div>
+                      <p class="text-white font-medium">{profile?.username || user?.email?.split('@')[0]}</p>
+                      <p class="text-gray-400 text-xs">Cuenta Premium</p>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="py-2">
+                  <a href="/dashboard" class="flex items-center px-4 py-3 text-gray-300 hover:text-white hover:bg-white/10 transition-all duration-200">
+                    <svg class="w-4 h-4 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"></path>
+                    </svg>
+                    Dashboard
+                  </a>
+                  <a href="/dashboard" class="flex items-center px-4 py-3 text-gray-300 hover:text-white hover:bg-white/10 transition-all duration-200">
+                    <svg class="w-4 h-4 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path>
+                    </svg>
+                    Mi Perfil
+                  </a>
+                  <a href="/settings" class="flex items-center px-4 py-3 text-gray-300 hover:text-white hover:bg-white/10 transition-all duration-200">
+                    <svg class="w-4 h-4 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"></path>
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
+                    </svg>
+                    Configuración
+                  </a>
+
+                  <div class="border-t border-white/10 my-2"></div>
+
+                  <form action="/api/auth/signout" method="POST" class="block" id="signout-form">
+                    <button type="submit" class="w-full flex items-center px-4 py-3 text-gray-300 hover:text-red-400 hover:bg-red-500/10 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed" id="signout-btn">
+                      <svg class="w-4 h-4 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"></path>
+                      </svg>
+                      <span id="signout-text">Cerrar Sesión</span>
+                      <div id="signout-loading" class="hidden ml-2">
+                        <svg class="animate-spin h-4 w-4 text-current" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                          <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                          <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                        </svg>
+                      </div>
+                    </button>
+                  </form>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+
+        <!-- Mobile Menu Button -->
+        <button class="md:hidden text-white hover:text-gray-300 transition-colors duration-300 p-2 rounded-lg hover:bg-white/10" id="mobile-menu-button" type="button">
+          <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path>
+          </svg>
+        </button>
+      </div>
+    </div>
+
+    <!-- Mobile Menu -->
+    <div class="md:hidden mt-4 pb-4 border-t border-white/20 hidden" id="mobile-menu">
+      <nav class="flex flex-col space-y-2 mt-4">
+        <a href="/" class="flex items-center text-white hover:text-gray-300 transition-colors duration-300 p-3 rounded-lg hover:bg-white/10">
+          <svg class="w-4 h-4 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"></path>
+          </svg>
+          Inicio
+        </a>
+        <a href="/trending" class="flex items-center text-white hover:text-gray-300 transition-colors duration-300 p-3 rounded-lg hover:bg-white/10">
+          <svg class="w-4 h-4 mr-3" fill="currentColor" viewBox="0 0 20 20">
+            <path fill-rule="evenodd" d="M12.395 2.553a1 1 0 00-1.45-.385c-.345.23-.614.558-.822.88-.214.33-.403.713-.57 1.116-.334.804-.614 1.768-.84 2.734a31.365 31.365 0 00-.613 3.58 2.64 2.64 0 01-.945-1.067c-.328-.68-.398-1.534-.398-2.654A1 1 0 005.05 6.05 6.981 6.981 0 003 11a7 7 0 1011.95-4.95c-.592-.591-.98-.985-1.348-1.467-.363-.476-.724-1.063-1.207-2.03zM12.12 15.12A3 3 0 017 13s.879.5 2.5.5c0-1 .5-4 1.25-4.5.5 1 .786 1.293 1.371 1.879A2.99 2.99 0 0113 13a2.99 2.99 0 01-.879 2.121z" clip-rule="evenodd"></path>
+          </svg>
+          Tendencias
+        </a>
+        {user && (
+          <>
+            <a href="/favorites" class="flex items-center text-white hover:text-gray-300 transition-colors duration-300 p-3 rounded-lg hover:bg-white/10">
+              <svg class="w-4 h-4 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"></path>
+              </svg>
+              Favoritos
+            </a>
+            <a href="/upload" class="flex items-center text-white hover:text-gray-300 transition-colors duration-300 p-3 rounded-lg hover:bg-white/10">
+              <svg class="w-4 h-4 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
+              </svg>
+              Subir Video
+            </a>
+            <a href="/dashboard" class="flex items-center text-white hover:text-gray-300 transition-colors duration-300 p-3 rounded-lg hover:bg-white/10">
+              <svg class="w-4 h-4 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"></path>
+              </svg>
+              Dashboard
+            </a>
+          </>
+        )}
+        <a href="/browse" class="flex items-center text-white hover:text-gray-300 transition-colors duration-300 p-3 rounded-lg hover:bg-white/10">
+          <svg class="w-4 h-4 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14-4H5m14 8H5m14-12H5"></path>
+          </svg>
+          Explorar
+        </a>
+      </nav>
+    </div>
+  </div>
+</header>
+
+<!-- Search Modal -->
+<div class="fixed inset-0 z-[200] hidden" id="search-modal">
+  <div class="absolute inset-0 bg-black/80 backdrop-blur-lg" id="search-backdrop"></div>
+  
+  <div class="relative flex items-start justify-center min-h-screen pt-16 px-4">
+    <div class="search-container w-full max-w-2xl bg-black/95 backdrop-blur-xl border border-white/20 rounded-2xl shadow-2xl">
+      <!-- Search Header -->
+      <div class="flex items-center p-6 border-b border-white/10">
+        <svg class="w-5 h-5 text-gray-400 mr-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+        </svg>
+        <input
+          type="text"
+          placeholder="¿Qué estás buscando?"
+          class="search-input flex-1 bg-transparent text-white placeholder-gray-400 border-none outline-none text-lg"
+          id="search-input"
+          autocomplete="off"
+        />
+        <button class="ml-4 text-gray-400 hover:text-white transition-colors duration-200" id="search-close">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+          </svg>
+        </button>
+      </div>
+
+      <!-- Search Content -->
+      <div class="max-h-96 overflow-y-auto" id="search-content">
+        <!-- Search Suggestions -->
+        <div class="p-4" id="search-suggestions">
+          <h3 class="text-sm font-medium text-gray-400 mb-3">Búsquedas sugeridas</h3>
+          <div class="space-y-2">
+            <button class="flex items-center w-full text-left p-3 rounded-lg hover:bg-white/5 transition-colors duration-200 group">
+              <svg class="w-4 h-4 text-gray-400 mr-3 group-hover:text-white transition-colors duration-200" fill="currentColor" viewBox="0 0 20 20">
+                <path fill-rule="evenodd" d="M12.395 2.553a1 1 0 00-1.45-.385c-.345.23-.614.558-.822.88-.214.33-.403.713-.57 1.116-.334.804-.614 1.768-.84 2.734a31.365 31.365 0 00-.613 3.58 2.64 2.64 0 01-.945-1.067c-.328-.68-.398-1.534-.398-2.654A1 1 0 005.05 6.05 6.981 6.981 0 003 11a7 7 0 1011.95-4.95c-.592-.591-.98-.985-1.348-1.467-.363-.476-.724-1.063-1.207-2.03zM12.12 15.12A3 3 0 017 13s.879.5 2.5.5c0-1 .5-4 1.25-4.5.5 1 .786 1.293 1.371 1.879A2.99 2.99 0 0113 13a2.99 2.99 0 01-.879 2.121z" clip-rule="evenodd"></path>
+              </svg>
+              <span class="text-gray-300 group-hover:text-white transition-colors duration-200">Videos trending</span>
+            </button>
+            <button class="flex items-center w-full text-left p-3 rounded-lg hover:bg-white/5 transition-colors duration-200 group">
+              <svg class="w-4 h-4 text-gray-400 mr-3 group-hover:text-white transition-colors duration-200" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 4V2a1 1 0 011-1h4a1 1 0 011 1v2h4a1 1 0 011 1v1a1 1 0 01-1 1v9a2 2 0 01-2 2H7a2 2 0 01-2-2V7a1 1 0 01-1-1V5a1 1 0 011-1h3z"></path>
+              </svg>
+              <span class="text-gray-300 group-hover:text-white transition-colors duration-200">Música</span>
+            </button>
+            <button class="flex items-center w-full text-left p-3 rounded-lg hover:bg-white/5 transition-colors duration-200 group">
+              <svg class="w-4 h-4 text-gray-400 mr-3 group-hover:text-white transition-colors duration-200" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.828 14.828a4 4 0 01-5.656 0M9 10h1m4 0h1m-6 4h8m-10 6h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
+              </svg>
+              <span class="text-gray-300 group-hover:text-white transition-colors duration-200">Comedia</span>
+            </button>
+            <button class="flex items-center w-full text-left p-3 rounded-lg hover:bg-white/5 transition-colors duration-200 group">
+              <svg class="w-4 h-4 text-gray-400 mr-3 group-hover:text-white transition-colors duration-200" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path>
+              </svg>
+              <span class="text-gray-300 group-hover:text-white transition-colors duration-200">Gaming</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- Search Results -->
+        <div class="hidden p-4" id="search-results">
+          <h3 class="text-sm font-medium text-gray-400 mb-3">Resultados</h3>
+          <div class="space-y-3" id="results-container">
+            <!-- Results will be populated here -->
+          </div>
+        </div>
+
+        <!-- No Results -->
+        <div class="hidden p-8 text-center" id="no-results">
+          <svg class="w-16 h-16 text-gray-600 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+          </svg>
+          <p class="text-gray-400 text-lg mb-2">No se encontraron resultados</p>
+          <p class="text-gray-500 text-sm">Intenta con otros términos de búsqueda</p>
+        </div>
+      </div>
+
+      <!-- Search Footer -->
+      <div class="px-6 py-4 border-t border-white/10">
+        <div class="flex items-center justify-between text-sm text-gray-500">
+          <span>Usa ↑↓ para navegar</span>
+          <span>Enter para seleccionar</span>
+          <span>Esc para cerrar</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<style>
+  /* Header scroll effects */
+  .header-scrolled {
+    background: rgba(0, 0, 0, 0.95);
+    backdrop-filter: blur(20px);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  }
+
+  /* Search modal animations */
+  .search-modal {
+    backdrop-filter: blur(20px);
+  }
+
+  .search-container {
+    transform: translateY(-20px) scale(0.95);
+    opacity: 0;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  #search-modal.active .search-container {
+    transform: translateY(0) scale(1);
+    opacity: 1;
+  }
+
+  /* Search results animations - optimized for performance */
+  .search-result {
+    opacity: 1;
+    transform: translateX(0);
+  }
+
+  /* Selected result highlight */
+  .search-result.selected {
+    background: rgba(147, 51, 234, 0.1) !important;
+    border-color: rgb(147, 51, 234);
+  }
+
+  /* Mobile menu animation */
+  @keyframes slideDown {
+    from {
+      opacity: 0;
+      transform: translateY(-20px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  .animate-slide-down {
+    animation: slideDown 0.3s ease-out;
+  }
+
+  /* Dropdown animations */
+  .dropdown-open {
+    opacity: 1 !important;
+    visibility: visible !important;
+    transform: translateY(0) scale(1) !important;
+  }
+
+  /* Custom scrollbar for search results */
+  #search-content::-webkit-scrollbar {
+    width: 6px;
+  }
+
+  #search-content::-webkit-scrollbar-track {
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 3px;
+  }
+
+  #search-content::-webkit-scrollbar-thumb {
+    background: rgba(255, 255, 255, 0.3);
+    border-radius: 3px;
+  }
+
+  #search-content::-webkit-scrollbar-thumb:hover {
+    background: rgba(255, 255, 255, 0.5);
+  }
+</style>
+
+<script>
+  // Utility function to safely get element
+  function getElement<T extends HTMLElement>(id: string): T | null {
+    return document.getElementById(id) as T | null;
+  }
+
+  // Definir tipos para los datos de búsqueda
+  interface VideoItem {
+    type: 'video';
+    id: string;
+    title: string;
+    author: string;
+    views: string;
+    duration: string;
+    thumbnail: string;
+  }
+
+  interface UserItem {
+    type: 'user';
+    id: string;
+    username: string;
+    followers: string;
+    avatar: string;
+  }
+
+  type SearchItem = VideoItem | UserItem;
+
+  // Enhanced search data with more items and better keywords
+  const searchData: SearchItem[] = [
+    {
+      type: 'video',
+      id: '1',
+      title: 'Tutorial de JavaScript Avanzado',
+      author: 'TechMaster',
+      views: '125K',
+      duration: '15:32',
+      thumbnail: 'https://images.unsplash.com/photo-1516321318423-f06f85e504b3?w=150&h=100&fit=crop'
+    },
+    {
+      type: 'video',
+      id: '2',
+      title: 'React vs Vue: Comparación Completa',
+      author: 'WebDev Pro',
+      views: '89K',
+      duration: '22:18',
+      thumbnail: 'https://images.unsplash.com/photo-1555066931-4365d14bab8c?w=150&h=100&fit=crop'
+    },
+    {
+      type: 'video',
+      id: '3',
+      title: 'CSS Grid Layout Masterclass',
+      author: 'DesignGuru',
+      views: '234K',
+      duration: '28:45',
+      thumbnail: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150&h=100&fit=crop'
+    },
+    {
+      type: 'video',
+      id: '4',
+      title: 'Node.js y Express: Curso Completo',
+      author: 'BackendPro',
+      views: '156K',
+      duration: '45:20',
+      thumbnail: 'https://images.unsplash.com/photo-1627398242454-45a1465c2479?w=150&h=100&fit=crop'
+    },
+    {
+      type: 'video',
+      id: '5',
+      title: 'Programación para Principiantes',
+      author: 'CodeAcademy',
+      views: '520K',
+      duration: '35:10',
+      thumbnail: 'https://images.unsplash.com/photo-1461749280684-dccba630e2f6?w=150&h=100&fit=crop'
+    },
+    {
+      type: 'video',
+      id: '6',
+      title: 'Diseño Web Responsive',
+      author: 'WebDesigner',
+      views: '78K',
+      duration: '18:30',
+      thumbnail: 'https://images.unsplash.com/photo-1467232004584-a241de8bcf5d?w=150&h=100&fit=crop'
+    },
+    {
+      type: 'video',
+      id: '7',
+      title: 'Gaming Highlights 2024',
+      author: 'GameMaster',
+      views: '890K',
+      duration: '12:45',
+      thumbnail: 'https://images.unsplash.com/photo-1511512578047-dfb367046420?w=150&h=100&fit=crop'
+    },
+    {
+      type: 'video',
+      id: '8',
+      title: 'Música Relajante para Estudiar',
+      author: 'ChillBeats',
+      views: '2.1M',
+      duration: '60:00',
+      thumbnail: 'https://images.unsplash.com/photo-1493225457124-a3eb161ffa5f?w=150&h=100&fit=crop'
+    },
+    {
+      type: 'video',
+      id: '9',
+      title: 'Stand Up Comedy - Lo Mejor del Año',
+      author: 'ComedyClub',
+      views: '345K',
+      duration: '25:15',
+      thumbnail: 'https://images.unsplash.com/photo-1516131206008-dd041a9764fd?w=150&h=100&fit=crop'
+    },
+    {
+      type: 'user',
+      id: 'u1',
+      username: 'CodeMaster2024',
+      followers: '45.2K',
+      avatar: 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=40&h=40&fit=crop&crop=face'
+    },
+    {
+      type: 'user',
+      id: 'u2',
+      username: 'DesignQueen',
+      followers: '28.1K',
+      avatar: 'https://images.unsplash.com/photo-1494790108755-2616b612b3ab?w=40&h=40&fit=crop&crop=face'
+    },
+    {
+      type: 'user',
+      id: 'u3',
+      username: 'TechGuru',
+      followers: '67.3K',
+      avatar: 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=40&h=40&fit=crop&crop=face'
+    }
+  ];
+
+  // Enhanced Header Controller with optimized search
+  class HeaderController {
+    private header: HTMLElement | null = null;
+    private mobileMenuButton: HTMLButtonElement | null = null;
+    private mobileMenu: HTMLElement | null = null;
+    private userMenuContainer: HTMLElement | null = null;
+    private userMenuButton: HTMLButtonElement | null = null;
+    private userDropdown: HTMLElement | null = null;
+    private dropdownArrow: HTMLElement | null = null;
+    private signoutForm: HTMLFormElement | null = null;
+    private signoutBtn: HTMLButtonElement | null = null;
+    private signoutText: HTMLElement | null = null;
+    private signoutLoading: HTMLElement | null = null;
+    
+    // Search elements
+    private searchBtn: HTMLButtonElement | null = null;
+    private searchModal: HTMLElement | null = null;
+    private searchBackdrop: HTMLElement | null = null;
+    private searchClose: HTMLButtonElement | null = null;
+    private searchInput: HTMLInputElement | null = null;
+    private searchSuggestions: HTMLElement | null = null;
+    private searchResults: HTMLElement | null = null;
+    private noResults: HTMLElement | null = null;
+    private resultsContainer: HTMLElement | null = null;
+
+    private lastScrollY = 0;
+    private dropdownTimeout: number | null = null;
+    private ticking = false;
+    private searchTimeout: number | null = null;
+    private selectedResultIndex = -1;
+    private currentResults: SearchItem[] = [];
+
+    constructor() {
+      this.initializeElements();
+      this.bindEvents();
+    }
+
+    private initializeElements(): void {
+      this.header = getElement<HTMLElement>('main-header');
+      this.mobileMenuButton = getElement<HTMLButtonElement>('mobile-menu-button');
+      this.mobileMenu = getElement<HTMLElement>('mobile-menu');
+      this.userMenuContainer = getElement<HTMLElement>('user-menu-container');
+      this.userMenuButton = getElement<HTMLButtonElement>('user-menu-button');
+      this.userDropdown = getElement<HTMLElement>('user-dropdown');
+      this.dropdownArrow = getElement<HTMLElement>('dropdown-arrow');
+      this.signoutForm = getElement<HTMLFormElement>('signout-form');
+      this.signoutBtn = getElement<HTMLButtonElement>('signout-btn');
+      this.signoutText = getElement<HTMLElement>('signout-text');
+      this.signoutLoading = getElement<HTMLElement>('signout-loading');
+
+      // Search elements
+      this.searchBtn = getElement<HTMLButtonElement>('search-btn');
+      this.searchModal = getElement<HTMLElement>('search-modal');
+      this.searchBackdrop = getElement<HTMLElement>('search-backdrop');
+      this.searchClose = getElement<HTMLButtonElement>('search-close');
+      this.searchInput = getElement<HTMLInputElement>('search-input');
+      this.searchSuggestions = getElement<HTMLElement>('search-suggestions');
+      this.searchResults = getElement<HTMLElement>('search-results');
+      this.noResults = getElement<HTMLElement>('no-results');
+      this.resultsContainer = getElement<HTMLElement>('results-container');
+    }
+
+    private bindEvents(): void {
+      // Existing events
+      window.addEventListener('scroll', () => this.requestScrollTick(), { passive: true });
+      this.mobileMenuButton?.addEventListener('click', () => this.toggleMobileMenu());
+      
+      if (this.userMenuContainer && this.userMenuButton && this.userDropdown) {
+        this.setupUserDropdown();
+      }
+
+      this.signoutForm?.addEventListener('submit', (e) => this.handleSignout(e));
+      window.addEventListener('resize', () => this.handleResize());
+      document.addEventListener('click', (e) => this.handleOutsideClick(e));
+      document.addEventListener('keydown', (e) => this.handleKeydown(e));
+      this.setupSmoothScroll();
+
+      // Search events
+      this.searchBtn?.addEventListener('click', () => this.openSearchModal());
+      this.searchClose?.addEventListener('click', () => this.closeSearchModal());
+      this.searchBackdrop?.addEventListener('click', () => this.closeSearchModal());
+      this.searchInput?.addEventListener('input', (e) => this.handleSearchInput(e));
+      this.searchInput?.addEventListener('keydown', (e) => this.handleSearchKeydown(e));
+
+      // Setup suggestion clicks
+      this.setupSuggestionClicks();
+    }
+
+    private openSearchModal(): void {
+      if (!this.searchModal) return;
+      
+      this.searchModal.classList.remove('hidden');
+      this.searchModal.classList.add('active');
+      
+      // Focus the input immediately - removed delay for better UX
+      requestAnimationFrame(() => {
+        this.searchInput?.focus();
+      });
+
+      // Prevent body scroll
+      document.body.style.overflow = 'hidden';
+    }
+
+    private closeSearchModal(): void {
+      if (!this.searchModal) return;
+      
+      this.searchModal.classList.remove('active');
+      
+      setTimeout(() => {
+        this.searchModal!.classList.add('hidden');
+        this.resetSearch();
+      }, 300);
+
+      // Restore body scroll
+      document.body.style.overflow = '';
+    }
+
+    private resetSearch(): void {
+      if (this.searchInput) this.searchInput.value = '';
+      this.showSuggestions();
+      this.selectedResultIndex = -1;
+      this.currentResults = [];
+    }
+
+    private handleSearchInput(event: Event): void {
+      const input = event.target as HTMLInputElement;
+      const query = input.value.trim();
+
+      // Clear existing timeout
+      if (this.searchTimeout) {
+        clearTimeout(this.searchTimeout);
+      }
+
+      // Reduced debounce time for faster response
+      this.searchTimeout = window.setTimeout(() => {
+        if (query.length === 0) {
+          this.showSuggestions();
+        } else {
+          // Search immediately, even with 1 character
+          this.performSearch(query);
+        }
+      }, 150); // Reduced from 300ms to 150ms
+    }
+
+    private handleSearchKeydown(event: KeyboardEvent): void {
+      if (event.key === 'Escape') {
+        this.closeSearchModal();
+        return;
+      }
+
+      if (event.key === 'ArrowDown') {
+        event.preventDefault();
+        this.navigateResults(1);
+      } else if (event.key === 'ArrowUp') {
+        event.preventDefault();
+        this.navigateResults(-1);
+      } else if (event.key === 'Enter') {
+        event.preventDefault();
+        this.selectResult();
+      }
+    }
+
+    private navigateResults(direction: number): void {
+      const results = this.resultsContainer?.children;
+      if (!results || results.length === 0) return;
+
+      // Remove previous selection
+      if (this.selectedResultIndex >= 0 && results[this.selectedResultIndex]) {
+        results[this.selectedResultIndex].classList.remove('selected');
+      }
+
+      // Calculate new index
+      this.selectedResultIndex += direction;
+      
+      if (this.selectedResultIndex < 0) {
+        this.selectedResultIndex = results.length - 1;
+      } else if (this.selectedResultIndex >= results.length) {
+        this.selectedResultIndex = 0;
+      }
+
+      // Add new selection
+      results[this.selectedResultIndex].classList.add('selected');
+      results[this.selectedResultIndex].scrollIntoView({ block: 'nearest' });
+    }
+
+    private selectResult(): void {
+      if (this.selectedResultIndex >= 0 && this.currentResults[this.selectedResultIndex]) {
+        const result = this.currentResults[this.selectedResultIndex];
+        this.handleResultClick(result);
+      }
+    }
+
+    // Optimized search function with better matching
+    private performSearch(query: string): void {
+      const lowerQuery = query.toLowerCase();
+      
+      // Enhanced search algorithm with better matching
+      const results = searchData.filter((item: SearchItem) => {
+        const searchFields: string[] = [];
+        
+        if (item.type === 'video') {
+          searchFields.push(
+            item.title.toLowerCase(),
+            item.author.toLowerCase(),
+            // Add keywords for better matching
+            'video', 'tutorial', 'curso', 'programacion', 'codigo'
+          );
+        } else if (item.type === 'user') {
+          searchFields.push(
+            item.username.toLowerCase(),
+            'usuario', 'perfil', 'user'
+          );
+        }
+
+        // Check if query matches any of the search fields
+        return searchFields.some(field => 
+          field.includes(lowerQuery) || 
+          lowerQuery.split(' ').every(word => field.includes(word))
+        );
+      }).slice(0, 8); // Limit results for better performance
+
+      this.currentResults = results;
+      this.selectedResultIndex = -1;
+
+      if (results.length > 0) {
+        this.showSearchResults(results);
+      } else {
+        this.showNoResults();
+      }
+    }
+
+    private showSuggestions(): void {
+      this.searchSuggestions?.classList.remove('hidden');
+      this.searchResults?.classList.add('hidden');
+      this.noResults?.classList.add('hidden');
+    }
+
+    private showSearchResults(results: SearchItem[]): void {
+      this.searchSuggestions?.classList.add('hidden');
+      this.searchResults?.classList.remove('hidden');
+      this.noResults?.classList.add('hidden');
+
+      if (!this.resultsContainer) return;
+
+      // Use DocumentFragment for better performance
+      const fragment = document.createDocumentFragment();
+
+      results.forEach((result) => {
+        const resultElement = this.createResultElement(result);
+        fragment.appendChild(resultElement);
+      });
+
+      // Clear and append all at once
+      this.resultsContainer.innerHTML = '';
+      this.resultsContainer.appendChild(fragment);
+    }
+
+    private showNoResults(): void {
+      this.searchSuggestions?.classList.add('hidden');
+      this.searchResults?.classList.add('hidden');
+      this.noResults?.classList.remove('hidden');
+    }
+
+    private createResultElement(result: SearchItem): HTMLElement {
+      const div = document.createElement('div');
+      div.className = 'search-result flex items-center p-3 rounded-lg hover:bg-white/5 transition-colors duration-200 cursor-pointer border border-transparent';
+      
+      if (result.type === 'video') {
+        div.innerHTML = `
+          <img src="${result.thumbnail}" alt="${result.title}" class="w-16 h-12 rounded-lg object-cover mr-4 flex-shrink-0">
+          <div class="flex-1 min-w-0">
+            <h4 class="text-white font-medium truncate">${this.escapeHtml(result.title)}</h4>
+            <p class="text-gray-400 text-sm truncate">${this.escapeHtml(result.author)} • ${result.views} views • ${result.duration}</p>
+          </div>
+          <svg class="w-4 h-4 text-gray-500 flex-shrink-0 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.828 14.828a4 4 0 01-5.656 0M9 10h1m4 0h1m-6 4h8m-10 6h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
+          </svg>
+        `;
+      } else if (result.type === 'user') {
+        div.innerHTML = `
+          <img src="${result.avatar}" alt="${result.username}" class="w-10 h-10 rounded-full object-cover mr-4 flex-shrink-0">
+          <div class="flex-1 min-w-0">
+            <h4 class="text-white font-medium truncate">@${this.escapeHtml(result.username)}</h4>
+            <p class="text-gray-400 text-sm truncate">${result.followers} seguidores</p>
+          </div>
+          <svg class="w-4 h-4 text-gray-500 flex-shrink-0 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path>
+          </svg>
+        `;
+      }
+
+      div.addEventListener('click', () => this.handleResultClick(result));
+      
+      return div;
+    }
+
+    private escapeHtml(text: string): string {
+      const div = document.createElement('div');
+      div.textContent = text;
+      return div.innerHTML;
+    }
+
+    private handleResultClick(result: SearchItem): void {
+      this.closeSearchModal();
+      
+      // Simulate navigation based on result type
+      if (result.type === 'video') {
+        console.log('Navigating to video:', result.title);
+        // window.location.href = `/watch/${result.id}`;
+        alert(`Navegando al video: ${result.title}`);
+      } else if (result.type === 'user') {
+        console.log('Navigating to user:', result.username);
+        // window.location.href = `/user/${result.username}`;
+        alert(`Navegando al perfil: @${result.username}`);
+      }
+    }
+
+    private setupSuggestionClicks(): void {
+      const suggestionButtons = this.searchSuggestions?.querySelectorAll('button');
+      suggestionButtons?.forEach(button => {
+        button.addEventListener('click', () => {
+          const searchText = button.textContent?.trim();
+          if (searchText && this.searchInput) {
+            this.searchInput.value = searchText;
+            this.performSearch(searchText);
+          }
+        });
+      });
+    }
+
+    // All existing methods remain the same...
+    private requestScrollTick(): void {
+      if (!this.ticking) {
+        requestAnimationFrame(() => {
+          this.handleScroll();
+          this.ticking = false;
+        });
+        this.ticking = true;
+      }
+    }
+
+    private handleScroll(): void {
+      const scrollY = window.scrollY;
+      
+      if (scrollY > 100) {
+        this.header?.classList.add('header-scrolled');
+      } else {
+        this.header?.classList.remove('header-scrolled');
+      }
+
+      if (this.header) {
+        if (scrollY > this.lastScrollY && scrollY > 200) {
+          this.header.style.transform = 'translateY(-100%)';
+        } else {
+          this.header.style.transform = 'translateY(0)';
+        }
+      }
+      
+      this.lastScrollY = scrollY;
+    }
+
+    private toggleMobileMenu(): void {
+      if (!this.mobileMenu || !this.mobileMenuButton) return;
+
+      const isHidden = this.mobileMenu.classList.contains('hidden');
+      
+      if (isHidden) {
+        this.showMobileMenu();
+      } else {
+        this.hideMobileMenu();
+      }
+    }
+
+    private showMobileMenu(): void {
+      if (!this.mobileMenu || !this.mobileMenuButton) return;
+
+      this.mobileMenu.classList.remove('hidden');
+      this.mobileMenu.classList.add('animate-slide-down');
+      this.mobileMenuButton.innerHTML = this.getCloseIcon();
+    }
+
+    private hideMobileMenu(): void {
+      if (!this.mobileMenu || !this.mobileMenuButton) return;
+
+      this.mobileMenu.classList.add('hidden');
+      this.mobileMenu.classList.remove('animate-slide-down');
+      this.mobileMenuButton.innerHTML = this.getHamburgerIcon();
+    }
+
+    private getHamburgerIcon(): string {
+      return `
+        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path>
+        </svg>
+      `;
+    }
+
+    private getCloseIcon(): string {
+      return `
+        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+        </svg>
+      `;
+    }
+
+    private setupUserDropdown(): void {
+      if (!this.userMenuButton || !this.userDropdown) return;
+
+      this.userMenuButton.addEventListener('mouseenter', () => this.showDropdown());
+      this.userDropdown.addEventListener('mouseenter', () => this.showDropdown());
+      this.userMenuButton.addEventListener('mouseleave', () => this.delayedHideDropdown());
+      this.userDropdown.addEventListener('mouseleave', () => this.delayedHideDropdown());
+      this.userMenuButton.addEventListener('click', () => this.toggleDropdown());
+    }
+
+    private showDropdown(): void {
+      if (this.dropdownTimeout) {
+        clearTimeout(this.dropdownTimeout);
+        this.dropdownTimeout = null;
+      }
+
+      this.userDropdown?.classList.add('dropdown-open');
+      this.dropdownArrow?.classList.add('rotate-180');
+    }
+
+    private hideDropdown(): void {
+      this.userDropdown?.classList.remove('dropdown-open');
+      this.dropdownArrow?.classList.remove('rotate-180');
+    }
+
+    private delayedHideDropdown(): void {
+      if (this.dropdownTimeout) {
+        clearTimeout(this.dropdownTimeout);
+      }
+      this.dropdownTimeout = window.setTimeout(() => {
+        this.hideDropdown();
+      }, 150);
+    }
+
+    private toggleDropdown(): void {
+      const isOpen = this.userDropdown?.classList.contains('dropdown-open');
+      if (isOpen) {
+        this.hideDropdown();
+      } else {
+        this.showDropdown();
+      }
+    }
+
+    private async handleSignout(event: Event): Promise<void> {
+      event.preventDefault();
+
+      if (!this.signoutBtn || !this.signoutText || !this.signoutLoading) return;
+
+      console.log('🧾 HEADER: Signout form submitted');
+
+      this.signoutBtn.disabled = true;
+      this.signoutText.classList.add('hidden');
+      this.signoutLoading.classList.remove('hidden');
+
+      try {
+        const response = await fetch('/api/auth/signout', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+        });
+
+        console.log('🧾 HEADER: Signout API response status:', response.status);
+
+        if (response.ok || response.redirected) {
+          console.log('🧾 HEADER: Signout successful, clearing client storage');
+
+          if (typeof(Storage) !== "undefined") {
+            sessionStorage.clear();
+            localStorage.removeItem('user');
+          }
+
+          window.location.href = '/login';
+        } else {
+          console.error('🧾 HEADER: Signout failed with status', response.status);
+          throw new Error('Signout failed');
+        }
+      } catch (error) {
+        console.error('🧾 HEADER: Signout error:', error);
+        window.location.href = '/login';
+      } finally {
+        this.signoutBtn.disabled = false;
+        this.signoutText.classList.remove('hidden');
+        this.signoutLoading.classList.add('hidden');
+      }
+    }
+
+    private handleResize(): void {
+      if (window.innerWidth >= 768) {
+        this.hideMobileMenu();
+        this.hideDropdown();
+      }
+    }
+
+    private handleOutsideClick(event: Event): void {
+      const target = event.target as HTMLElement;
+
+      if (this.mobileMenu && !this.mobileMenu.contains(target) && !this.mobileMenuButton?.contains(target)) {
+        if (!this.mobileMenu.classList.contains('hidden')) {
+          this.hideMobileMenu();
+        }
+      }
+
+      if (this.userMenuContainer && !this.userMenuContainer.contains(target)) {
+        this.hideDropdown();
+      }
+    }
+
+    private handleKeydown(event: KeyboardEvent): void {
+      if (event.key === 'Escape') {
+        this.hideMobileMenu();
+        this.hideDropdown();
+        
+        if (!this.searchModal?.classList.contains('hidden')) {
+          this.closeSearchModal();
+        }
+      }
+
+      // Open search with Ctrl+K or Cmd+K
+      if ((event.ctrlKey || event.metaKey) && event.key === 'k') {
+        event.preventDefault();
+        this.openSearchModal();
+      }
+    }
+
+    private setupSmoothScroll(): void {
+      document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+        anchor.addEventListener('click', function(this: HTMLAnchorElement, e: Event) {
+          e.preventDefault();
+          const href = this.getAttribute('href');
+          if (href && href !== '#') {
+            const target = document.querySelector(href);
+            if (target) {
+              target.scrollIntoView({
+                behavior: 'smooth',
+                block: 'start'
+              });
+            }
+          }
+        });
+      });
+    }
+  }
+
+  // Initialize header when DOM is loaded
+  document.addEventListener('DOMContentLoaded', () => {
+    new HeaderController();
+  });
+</script>

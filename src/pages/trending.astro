@@ -1,0 +1,59 @@
+---
+export const prerender = false;
+import Layout from '../layouts/Layout.astro';
+import VideoCard from '../components/VideoCard.astro';
+import { createSupabaseServerClient } from '../lib/supabaseServer';
+
+const supabase = createSupabaseServerClient(Astro.cookies);
+
+const { data: { user }, error: userError } = await supabase.auth.getUser();
+
+if (userError || !user) {
+  return Astro.redirect('/login');
+}
+
+// Get user profile data
+const { data: profile } = await supabase
+  .from('profiles')
+  .select('username, avatar_url')
+  .eq('id', user.id)
+  .single();
+
+// Provide fallback for profile data
+const profileData = profile || { username: user.email?.split('@')[0] || 'Usuario', avatar_url: null };
+
+// Get trending videos from database (most viewed or recent)
+const { data: videos, error: videosError } = await supabase
+  .from('videos')
+  .select('id, title, description, thumbnail, created_at')
+  .order('created_at', { ascending: false })
+  .limit(12);
+
+const trendingVideos = (videos || []).map((video: any) => ({
+  ...video,
+  thumbnail_url: video.thumbnail,
+  duration: '45m',
+  views: Math.floor(Math.random() * 1000000) + 100000 // Mock views for now
+}));
+---
+
+<Layout title="VideoHub - Tendencias" user={user} profile={profile}>
+  <div class="min-h-screen bg-black text-white">
+    <!-- Content -->
+    <main class="py-12">
+      <div class="w-[98%] mx-auto px-6">
+        <div class="mb-8">
+          <h1 class="text-3xl font-bold text-white mb-2">Tendencias</h1>
+          <p class="text-gray-400">Los videos más populares del momento</p>
+        </div>
+
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+          {trendingVideos.map((video) => (
+            <VideoCard video={video} />
+          ))}
+        </div>
+        
+      </div>
+    </main>
+  </div>
+</Layout>
